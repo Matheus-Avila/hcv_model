@@ -1,0 +1,18 @@
+
+
+-------NOVA TENTATIVA-------
+
+Population size: 30
+Number of generations: 30
+epsilon_r, epsilon_alpha, epsilon_s, alpha, r, delta, mu_c, rho, theta, sigma, c
+PATB16 Patient
+
+
+
+-------NOVA TENTATIVA-------
+
+Population size: 1
+Number of generations: 1
+epsilon_r, epsilon_alpha, epsilon_s, alpha, r, delta, mu_c, rho, theta, sigma, c
+PATB16 Patient
+

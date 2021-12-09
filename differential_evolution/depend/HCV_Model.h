@@ -29,6 +29,7 @@ class HCV_Model{
 
     double T; // celulas alvo
     double V; // virus
+    double A_alt; // ALT
 
     int simCase;
     int days;
@@ -70,6 +71,10 @@ class HCV_Model{
     double kappa_t; // fator para aumentar a degrada��o de RNA positivo dispon�vel para tradu��o
     double kappa_c; // fator para aumentar a degrada��o de RNA positivo e negativo no complexo de replica��o
 
+    double s_alt; //ALT liberado no sangue por fatores externos 
+    double c_alt; //ALT removido da circulação
+    double alpha_alt; //ALT liberado pelas células infectadas
+
     int saveFiles;
     char *dir;
     FILE* dataInfected;
@@ -86,6 +91,7 @@ class HCV_Model{
     int checkFile(FILE* theFile);
     void initialize();
     double calcIntegral(double vec1[][AGE], double vec2[][AGE], double vec3[][AGE]);
+    double calcIntegral1(double vec1[][AGE]);
     double calcIntegral2(double a, double b, double vec1[][AGE], double vec2[][AGE], double delta, double rho, double deltaA);
     void update(double vec[][AGE]);
 
@@ -146,6 +152,10 @@ void HCV_Model::initialize(){
     c = atof(aux_string.c_str());
 
     param.close();
+
+    s_alt= 1.0;
+    c_alt = 1.0;
+    alpha_alt = 2.0;
 
     /**
     * number of days simulated
@@ -270,6 +280,7 @@ void HCV_Model::initialize(){
     T = c / (beta * N);                                       
     V = V0; //fixar baseado na outra DE
     I[0][0] = beta * T * V;
+    A_alt = (s+I[0][0])/c_alt; //MATHEUS linha 233 do docx
 
     double delta1;
     if (vardelta) delta1 = 0.01;
@@ -297,6 +308,15 @@ double  HCV_Model::calcIntegral(double vec1[][AGE], double vec2[][AGE],double ve
     double sum=0.0;
     for(a = 0; a < AGE; a++){
         sum += (vec1[0][a]+vec2[0][a])*vec3[0][a];
+    }
+    return sum/(2.0*AGE);
+}
+
+double  HCV_Model::calcIntegral1(double vec1[][AGE]){ //MATHEUS integral do ALT
+    int a;
+    double sum=0.0;
+    for(a = 0; a < AGE; a++){
+        sum += vec1[0][a];
     }
     return sum/(2.0*AGE);
 }
@@ -346,6 +366,7 @@ int HCV_Model::solve(){
         */
         T = (s - d*T - beta*V*T)*deltaT + T;
         V = ((1-epsilon_s)*rho*calcIntegral(I,Rp,Rt) - c*V)*deltaT + V;
+        A_alt = (alpha_alt*delta*calcIntegral1(I) -c_alt*A_alt)*deltaT + A_alt; // MATHEUS linha 100. delta da linha 70
         
         //printf("t = %ld V = %lf T = %lf \n", t,V,T);
         /**
